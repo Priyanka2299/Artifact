@@ -3,13 +3,20 @@ package com.springartifact.services;
 import com.springartifact.dtos.FakeStoreProductDto;
 import com.springartifact.models.Category;
 import com.springartifact.models.Product;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
+
+
 @Service("FakeStoreProductService")
 
 public class FakeStoreProductService implements ProductService {
+    @Autowired
     private RestTemplate restTemplate;
 
     FakeStoreProductService(RestTemplate restTemplate){
@@ -42,6 +49,31 @@ public class FakeStoreProductService implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return null;
+        FakeStoreProductDto [] fakeStoreProductDtos =
+                restTemplate.getForObject("https://fakestoreapi.com/products",
+                        FakeStoreProductDto[].class);//used arrays instead of List because of Type Erasion
+
+        //convert List of FakeStoreProductDTO to List of Products
+        ArrayList<Product> response = new ArrayList<>();
+        for(FakeStoreProductDto fakeStoreProductDto : fakeStoreProductDtos){
+            response.add(convertFakeStoreDtoToProduct(fakeStoreProductDto));
+        }
+        return response;
     }
+    @Override
+    public Product replaceProduct(Long id, Product product) { //in the request I will be sending fakestorproductdto object instead of product object
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setTitle(product.getTitle());
+        fakeStoreProductDto.setImage(product.getImage());
+        fakeStoreProductDto.setDescription(product.getDescription());
+
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(fakeStoreProductDto, FakeStoreProductDto.class);
+        HttpMessageConvertorExtractor<FakeStoreProductDto> responseExtractor =
+                new HttpMessageConvertorExtractor<FakeStoreProductDto.class,
+                restTemplate.getMessageConvertors());
+        FakeStoreProductDto response =
+                restTemplate.execute( "https://fakestoreapi.com/products/" +id, HttpMethod.PUT, requestCallback, responseExtractor);
+        return convertFakeStoreDtoToProduct(response);
+    }
+
 }
