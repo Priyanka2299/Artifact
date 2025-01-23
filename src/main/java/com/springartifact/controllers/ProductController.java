@@ -1,11 +1,14 @@
 package com.springartifact.controllers;
 
+import com.springartifact.exceptions.ProductNotFoundException;
 import com.springartifact.models.Product;
 import com.springartifact.services.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -16,9 +19,15 @@ public class ProductController implements ProductService {
         this.productService = productService;
     }
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable("id") Long id){
-
-        return productService.getProductById(id);
+    public ResponseEntity<Product> getProductById(@PathVariable("id") Long id) throws ProductNotFoundException {
+        Product product = productService.getProductById(id);
+        ResponseEntity<Product> responseEntity;
+        if(product ==null){
+            responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return responseEntity;
+        }
+        responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
+        return responseEntity;
     }
 //    @Override
 //    public Product getProduct(Long id) {
@@ -34,5 +43,8 @@ public class ProductController implements ProductService {
     public Product replaceProduct(@PathVariable("id") Long id, @RequestBody Product product) {
         return productService.replaceProduct(id, product);
     }
-
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<Void> handleSomeExceptions(){
+        return null;
+    }
 }
