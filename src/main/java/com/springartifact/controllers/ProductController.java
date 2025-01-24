@@ -21,13 +21,13 @@ public class ProductController implements ProductService {
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable("id") Long id) throws ProductNotFoundException {
         Product product = productService.getProductById(id);
-        ResponseEntity<Product> responseEntity;
+        //ResponseEntity<Product> responseEntity;
         if(product ==null){
-            responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            return responseEntity;
+            //responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.OK).body(product);
         }
-        responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
-        return responseEntity;
+        //responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 //    @Override
 //    public Product getProduct(Long id) {

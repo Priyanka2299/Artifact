@@ -6,7 +6,6 @@ import com.springartifact.models.Category;
 import com.springartifact.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
@@ -40,7 +39,7 @@ public class FakeStoreProductService implements ProductService {
 
     }
     @Override
-    public ResponseEntity<Product> getProductById(Long id) throws ProductNotFoundException {
+    public Product getProductById(Long id) throws ProductNotFoundException {
         FakeStoreProductDto fakeStoreProductDto =
                 restTemplate.getForObject("https://fakestoreapi.com/products/" + id,
                         FakeStoreProductDto.class);
